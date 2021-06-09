@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="kr">
+    <head>
+        <title>IQ 추적기</title>
+    </head>
+    <body>
+        <script>
+            // Java String.hashCode() implementation from https://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+            String.prototype.hashCode = function() {
+        	    var hash = 0;
+	            if (this.length == 0) return hash;
+	            for (i = 0; i < this.length; i++) {
+	                char = this.charCodeAt(i);
+	                hash = ((hash<<5)-hash)+char;
+    	            hash = hash & hash; // Convert to 32bit integer
+	            }
+	            return hash;
+	        }
+
+            let mapRange = function(fromMin, fromMax, toMin, toMax) {
+                const fromSpan = fromMax - fromMin;
+                const toSpan = toMax - toMin;
+
+                const ratio = toSpan / fromSpan;
+                return function(value) { return toMin + ratio * (value - fromMin) }
+            }
+            
+            document.body.onload = addIQ;
+            function addIQ() {
+                fetch("https://api.ipify.org/")
+                    .then(function(iq) {
+                        return iq.text().then(function(text) {
+                            console.debug(`${text}, ${text.hashCode()}, ${mapRange(-2147483648, 2147483647, 50, 200)(text.hashCode())}`)
+                            var pTag = document.createElement("p");
+                            var iqText = document.createTextNode(`IQ 추적 결과 당신의 IQ는 ${mapRange(-2147483648, 2147483647, 40, 120)(text.hashCode())}입니다.`);
+                            pTag.appendChild(iqText);
+                            document.body.appendChild(pTag);
+                        });
+                    });
+            }
+        </script>
+    </body>
+</html>
